@@ -29,37 +29,28 @@ onload = function () {
     attLocation[1] = gl.getAttribLocation(prg, 'color');
 
     // attributeの要素数(この場合は xyz の3要素)
-    var attStride = new Array(2);
-    attStride[0] = 3;
-    attStride[1] = 4;
+    var attSize = new Array(2);
+    attSize[0] = 3;
+    attSize[1] = 4;
+    var glFloatSize = 4;
+    var stride = glFloatSize * (attSize[0] + attSize[1]);
 
     // 頂点の位置情報を格納する配列
-    var vertex_position = [
-        0.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        -1.0, 0.0, 0.0
-    ];
-
-    // 頂点の色情報を格納する配列
-    var vertex_color = [
-        1.0, 0.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0,
-        0.0, 0.0, 1.0, 1.0
+    var vertex_data = [
+        0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
+        -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0
     ];
 
     // VBOの生成
-    var position_vbo = create_vbo(vertex_position);
-    var color_vbo = create_vbo(vertex_color);
+    var vbo = create_vbo(vertex_data);
 
     // VBOをバインドし登録する(位置情報)
-    gl.bindBuffer(gl.ARRAY_BUFFER, position_vbo);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.enableVertexAttribArray(attLocation[0]);
-    gl.vertexAttribPointer(attLocation[0], attStride[0], gl.FLOAT, false, 0, 0);
-
-    // VBOをバインドし登録する(色情報)
-    gl.bindBuffer(gl.ARRAY_BUFFER, color_vbo);
     gl.enableVertexAttribArray(attLocation[1]);
-    gl.vertexAttribPointer(attLocation[1], attStride[1], gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(attLocation[0], attSize[0], gl.FLOAT, false, stride, 0);
+    gl.vertexAttribPointer(attLocation[1], attSize[1], gl.FLOAT, false, stride, glFloatSize * attSize[0]);
 
     // minMatrix.js を用いた行列関連処理
     // matIVオブジェクトを生成
