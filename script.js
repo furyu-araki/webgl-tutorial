@@ -4,6 +4,11 @@ onload = function () {
     c.width = 500;
     c.height = 300;
 
+    // チェックボックスの参照を取得
+	var che_culling = document.getElementById('cull');
+	var che_front = document.getElementById('front');
+	var che_depth_test = document.getElementById('depth');
+
     // webglコンテキストを取得
     var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
 
@@ -79,8 +84,28 @@ onload = function () {
     // カウンタの宣言
     var count = 0;
 
+    // 深度テストの比較方法を指定
+	gl.depthFunc(gl.LEQUAL);
+
     // 恒常ループ
     (function () {
+        // checkBoxの値によってカリングと深度テストを設定
+		if(che_culling.checked){
+			gl.enable(gl.CULL_FACE);
+		}else{
+			gl.disable(gl.CULL_FACE);
+		}
+		if(che_front.checked){
+			gl.frontFace(gl.CCW);
+		}else{
+			gl.frontFace(gl.CW);
+		}
+		if(che_depth_test.checked){
+			gl.enable(gl.DEPTH_TEST);
+		}else{
+			gl.disable(gl.DEPTH_TEST);
+		}
+        
         // canvasを初期化
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clearDepth(1.0);
@@ -91,15 +116,24 @@ onload = function () {
 
         // カウンタを元にラジアンを算出
         var rad = (count % 360) * Math.PI / 180;
+        var x = Math.cos(rad) * 1.5;
+		var z = Math.sin(rad) * 1.5;
 
         // モデル座標変換行列の生成(Y軸による回転)
         m.identity(mMatrix);
-        m.rotate(mMatrix, rad, [0, 1, 0], mMatrix);
+        m.translate(mMatrix, [x, 0.0, z], mMatrix)
+        m.rotate(mMatrix, rad, [1, 0, 0], mMatrix);;
         m.multiply(tmpMatrix, mMatrix, mvpMatrix);
         gl.uniformMatrix4fv(uniLocation, false, mvpMatrix);
-
-        // インデックスを用いた描画命令
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+
+        // モデル座標変換行列の生成(Y軸による回転)
+		m.identity(mMatrix);
+		m.translate(mMatrix, [-x, 0.0, -z], mMatrix);
+		m.rotate(mMatrix, rad, [0, 1, 0], mMatrix);
+		m.multiply(tmpMatrix, mMatrix, mvpMatrix);
+		gl.uniformMatrix4fv(uniLocation, false, mvpMatrix);
+		gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
         // コンテキストの再描画
         gl.flush();
