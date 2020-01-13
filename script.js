@@ -53,11 +53,12 @@ onload = function () {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
 
     // uniformLocationの取得
-    var uniLocation = new Array(4);
+    var uniLocation = new Array(5);
     uniLocation[0] = gl.getUniformLocation(prg, 'mvpMatrix');
     uniLocation[1] = gl.getUniformLocation(prg, 'invMatrix');
     uniLocation[2] = gl.getUniformLocation(prg, 'lightDirection');
-    uniLocation[3] = gl.getUniformLocation(prg, 'ambientColor');
+    uniLocation[3] = gl.getUniformLocation(prg, 'eyeDirection');
+    uniLocation[4] = gl.getUniformLocation(prg, 'ambientColor');
 
     // minMatrix.js を用いた行列関連処理
     // matIVオブジェクトを生成
@@ -71,16 +72,19 @@ onload = function () {
     var mvpMatrix = m.identity(m.create());
     var invMatrix = m.identity(m.create());
 
-    // ビュー×プロジェクション座標変換行列
-    m.lookAt([0.0, 0.0, 20.0], [0, 0, 0], [0, 1, 0], vMatrix);
-    m.perspective(45, c.width / c.height, 0.1, 100, pMatrix);
-    m.multiply(pMatrix, vMatrix, tmpMatrix);
-
     // 平行光源の向き
     var lightDirection = [-0.5, 0.5, 0.5];
 
+    // 視点ベクトル
+    var eyeDirection = [0.0, 0.0, 20.0];
+
     // 環境光の色
     var ambientColor = [0.1, 0.1, 0.1, 1.0];
+
+    // ビュー×プロジェクション座標変換行列
+    m.lookAt(eyeDirection, [0, 0, 0], [0, 1, 0], vMatrix);
+    m.perspective(45, c.width / c.height, 0.1, 100, pMatrix);
+    m.multiply(pMatrix, vMatrix, tmpMatrix);
 
     // カウンタの宣言
     var count = 0;
@@ -113,7 +117,8 @@ onload = function () {
         gl.uniformMatrix4fv(uniLocation[0], false, mvpMatrix);
         gl.uniformMatrix4fv(uniLocation[1], false, invMatrix);
         gl.uniform3fv(uniLocation[2], lightDirection);
-        gl.uniform4fv(uniLocation[3], ambientColor);
+        gl.uniform3fv(uniLocation[3], eyeDirection);
+        gl.uniform4fv(uniLocation[4], ambientColor);
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
         // コンテキストの再描画
