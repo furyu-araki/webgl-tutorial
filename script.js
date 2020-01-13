@@ -80,7 +80,7 @@ onload = function () {
     var lightDirection = [-0.5, 0.5, 0.5];
 
     // 環境光の色
-    ambientColor = [0.1, 0.1, 0.1, 1.0];
+    var ambientColor = [0.1, 0.1, 0.1, 1.0];
 
     // カウンタの宣言
     var count = 0;
