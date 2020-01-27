@@ -32,11 +32,11 @@ onload = function () {
     attStride[2] = 4;
 
     // トーラスの頂点データを生成
-    var torusData = torus(32, 32, 1.0, 2.0);
-    var position = torusData[0];
-    var normal = torusData[1];
-    var color = torusData[2];
-    var index = torusData[3];
+    var torusData = torus(64, 64, 1.5, 3.0);
+    var position = torusData.p;
+    var normal = torusData.n;
+    var color = torusData.c;
+    var index = torusData.i;
 
     // VBOの生成
     var pos_vbo = create_vbo(position);
@@ -251,8 +251,10 @@ onload = function () {
         return ibo;
     }
 
-    function torus(row, column, irad, orad) {
-        var pos = new Array(), nor = new Array(), col = new Array(), idx = new Array();
+    // トーラスを生成する関数
+    function torus(row, column, irad, orad, color) {
+        var pos = new Array(), nor = new Array(),
+            col = new Array(), idx = new Array();
         for (var i = 0; i <= row; i++) {
             var r = Math.PI * 2 / row * i;
             var rr = Math.cos(r);
@@ -264,9 +266,13 @@ onload = function () {
                 var tz = (rr * irad + orad) * Math.sin(tr);
                 var rx = rr * Math.cos(tr);
                 var rz = rr * Math.sin(tr);
+                if (color) {
+                    var tc = color;
+                } else {
+                    tc = hsva(360 / column * ii, 1, 1, 1);
+                }
                 pos.push(tx, ty, tz);
                 nor.push(rx, ry, rz);
-                var tc = hsva(360 / column * ii, 1, 1, 1);
                 col.push(tc[0], tc[1], tc[2], tc[3]);
             }
         }
@@ -277,7 +283,7 @@ onload = function () {
                 idx.push(r + column + 1, r + column + 2, r + 1);
             }
         }
-        return [pos, nor, col, idx];
+        return { p: pos, n: nor, c: col, i: idx };
     }
 
     function hsva(h, s, v, a) {
